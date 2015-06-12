@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd">
+
+	<!-- 邮箱服务器配置 -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<!--邮箱服务器的主机地址 -->
+		<property name="host" value="${mail.host}" />
+		<!--默认的编码方式 -->
+		<property name="defaultEncoding" value="UTF-8" />
+		<!--服务器的端口号 -->
+		<property name="port" value="${mail.port}" />
+		<!--连接服务器的用户名  -->
+		<property name="username" value="${mail.username}" />
+		<!--密码 就是你登陆邮箱的密码 -->
+		<property name="password" value="${mail.password}" />
+		<!--下面就是smtp的一些设置 -->
+		<property name="javaMailProperties">
+			<props>
+				<!--设置自动登录 -->
+				<prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+				<!--设置超时时间 -->
+				<prop key="mail.smtp.timeout">${mail.smtp.timeout}</prop>
+				<!--设置端口的进入优先命令状态 -->
+				<prop key="mail.smtp.starttls.enable">${mail.smtp.starttls.enable}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="senderMailUtils" class="com.carmanager.utils.SenderMailUtils" />
+
+	<!--配置异步线程执行器 -->
+	<bean id="taskExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<!-- 线程池维护线程的最少数量 -->
+		<property name="corePoolSize" value="${task.core_pool_size}" />
+		<!-- 线程池维护线程的最大数量 -->
+		<property name="maxPoolSize" value="${task.max_pool_size}" />
+		<!-- 线程池所使用的缓冲队列 -->
+		<property name="queueCapacity" value="${task.queue_capacity}" />
+		<!-- 线程池维护线程所允许的空闲时间 -->
+		<property name="keepAliveSeconds" value="${task.keep_alive_seconds}" />
+	</bean>
+
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="resourceLoaderPath" value="${velocityEngine.resourceLoaderPath}"></property>
+	</bean>
+
+</beans>

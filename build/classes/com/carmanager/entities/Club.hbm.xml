@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-5-18 20:59:52 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+	<class name="com.carmanager.entities.Club" table="CLUBS">
+		<id name="id" type="java.lang.Integer">
+			<column name="ID" />
+			<generator class="native" />
+		</id>
+		<property name="clubName" type="java.lang.String">
+			<column name="CLUBNAME" />
+		</property>
+		<property name="introduction" type="java.lang.String">
+			<column name="INTRODUCTION" />
+		</property>
+		<property name="createTime" type="date">
+			<column name="CREATETIME" />
+		</property>
+		<set name="clubActivities" table="CLUBACTIVITYS" inverse="true"
+			lazy="true">
+			<key>
+				<column name="CLUB" />
+			</key>
+			<one-to-many class="com.carmanager.entities.ClubActivity" />
+		</set>
+	</class>
+</hibernate-mapping>

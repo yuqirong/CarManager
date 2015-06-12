@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-5-13 21:13:21 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+	<class name="com.carmanager.entities.CarType" table="CARTYPES">
+		<id name="id" type="java.lang.Integer">
+			<column name="ID" />
+			<generator class="native" />
+		</id>
+		<property name="typeName" type="java.lang.String">
+			<column name="TYPENAME" />
+		</property>
+		<property name="brand" type="java.lang.String">
+			<column name="BRAND" />
+		</property>
+		<property name="introduction" type="java.lang.String">
+			<column name="INTRODUCTION" />
+		</property>
+		<property name="guidePrice" type="java.lang.String">
+			<column name="GUIDEPRICE" />
+		</property>
+		<property name="salePrice" type="java.lang.String">
+			<column name="SALEPRICE" />
+		</property>
+		<property name="stock" type="java.lang.String">
+			<column name="STOCK" />
+		</property>
+		<property name="picture" type="java.lang.String">
+			<column name="PICTURE" />
+		</property>
+		<set name="cars" table="CARS" inverse="true" lazy="true">
+			<key>
+				<column name="CARTYPE" />
+			</key>
+			<one-to-many class="com.carmanager.entities.Car" />
+		</set>
+	</class>
+</hibernate-mapping>

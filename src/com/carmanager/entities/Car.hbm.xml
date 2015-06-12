@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-5-13 21:15:07 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.carmanager.entities.Car" table="CARS">
+        <id name="id" type="java.lang.Integer">
+            <column name="ID" />
+            <generator class="native" />
+        </id>
+        <property name="carName" type="java.lang.String">
+            <column name="CARNAME" />
+        </property>
+        <property name="guidePrice" type="java.lang.String">
+            <column name="GUIDEPRICE" />
+        </property>
+        <property name="salePrice" type="java.lang.String">
+            <column name="SALEPRICE" />
+        </property>
+        <property name="displacement" type="java.lang.String">
+            <column name="DISPLACEMENT" />
+        </property>
+        <property name="listTime" type="java.lang.String">
+            <column name="LISTTIME" />
+        </property>
+        <property name="picture" type="java.lang.String">
+            <column name="PICTURE" />
+        </property>
+         <property name="type" type="java.lang.String">
+            <column name="TYPE" />
+        </property>
+        <property name="priceTime" type="date">
+            <column name="PRICETIME" />
+        </property>
+        <many-to-one name="carType" class="com.carmanager.entities.CarType" fetch="join">
+            <column name="CARTYPE" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>

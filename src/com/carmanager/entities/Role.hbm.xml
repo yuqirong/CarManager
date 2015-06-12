@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-5-21 22:04:53 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="com.carmanager.entities.Role" table="ROLES">
+    	<id name="id" type="java.lang.Integer">
+			<column name="ID" />
+			<generator class="native" />
+		</id>
+        <property name="role" type="java.lang.String">
+            <column name="ROLE" />
+        </property>
+        <property name="description" type="java.lang.String">
+            <column name="DESCRIPTION" />
+        </property>
+        <property name="available" type="java.lang.Boolean">
+            <column name="AVAILABLE" />
+        </property>
+        <property name="inherent" type="java.lang.Boolean">
+            <column name="INHERENT" />
+        </property>
+        <set name="permissions" table="ROLES_PERMISSIONS_LINK" lazy="true">
+			<key>
+				<column name="ROLE" />
+			</key>
+			<many-to-many class="com.carmanager.entities.Permission" column="PERMISSION"/>
+		</set>
+    </class>
+</hibernate-mapping>

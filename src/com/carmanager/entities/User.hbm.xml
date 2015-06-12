@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-5-10 18:21:13 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+	<class name="com.carmanager.entities.User" table="USERS">
+		<id name="id" type="java.lang.Integer">
+			<column name="ID" />
+			<generator class="native" />
+		</id>
+		<property name="username" type="java.lang.String">
+			<column name="USERNAME" />
+		</property>
+		<property name="password" type="java.lang.String">
+			<column name="PASSWORD" />
+		</property>
+		<property name="salt" type="java.lang.String">
+			<column name="SALT" />
+		</property>
+		<property name="enabled" type="boolean">
+			<column name="ENABLED" />
+		</property>
+		<property name="admin" type="boolean">
+			<column name="ADMIN" />
+		</property>
+		<property name="loginFailureCount" type="java.lang.Integer">
+			<column name="LOGIN_FAILURE_COUNT" />
+		</property>
+		<property name="lockedTime" type="java.util.Date">
+			<column name="LOCKED_TIME" />
+		</property>
+		<property name="loginTime" type="java.util.Date">
+			<column name="LOGIN_TIME" />
+		</property>
+		<property name="ipAddress" type="java.lang.String">
+			<column name="IP_ADDRESS" />
+		</property>
+		<property name="email" type="java.lang.String">
+			<column name="EMAIL" />
+		</property>
+		<many-to-one name="grade" class="com.carmanager.entities.Grade"
+			fetch="join">
+			<column name="GRADE" />
+		</many-to-one>
+		<property name="experience" type="int">
+			<column name="EXPERIENCE" />
+		</property>
+		<property name="score" type="int">
+			<column name="SCORE" />
+		</property>
+		<property name="gender" type="int">
+			<column name="GENDER" />
+		</property>
+		<property name="phone" type="java.lang.String" length="11">
+			<column name="PHONE" />
+		</property>
+		<property name="description" type="java.lang.String">
+			<column name="DESCRIPTION" />
+		</property>
+		<property name="createTime" type="java.util.Date">
+			<column name="CREATETIME" />
+		</property>
+		<property name="state" type="int">
+			<column name="STATE" />
+		</property>
+		<property name="activeCode" type="java.lang.String">
+			<column name="ACTIVECODE" />
+		</property>
+		<property name="activeTime" type="java.util.Date">
+			<column name="ACTIVETIME" />
+		</property>
+		<set name="roles" table="USERS_ROLES_LINK" lazy="true">
+			<key>
+				<column name="USER" />
+			</key>
+			<many-to-many class="com.carmanager.entities.Role"
+				column="ROLE" />
+		</set>
+	</class>
+</hibernate-mapping>

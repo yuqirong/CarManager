@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- 缓存管理器使用 -->
+	<bean id="shiroCacheManager" class="com.carmanager.shiro.spring.SpringCacheManagerWrapper">
+		<property name="cacheManager" ref="cacheManager" />
+	</bean>
+
+	<!-- <bean id="shiroSpringCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"> 
+		<property name="cacheManager" ref="shiroEhcacheManager" /> </bean> 得到缓存管理器的实例 
+		ehcache <bean id="shiroEhcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"> 
+		<property name="configLocation" value="classpath:ehcache/ehcache-shiro.xml" 
+		/> </bean> -->
+
+	<!-- 凭证匹配器 -->
+	<bean id="credentialsMatcher"
+		class="com.carmanager.shiro.credentials.RetryLimitHashedCredentialsMatcher">
+		<constructor-arg ref="shiroCacheManager" />
+		<property name="hashAlgorithmName" value="md5" />
+		<property name="hashIterations" value="2" />
+		<property name="storedCredentialsHexEncoded" value="true" />
+	</bean>
+
+	<!-- Realm实现 -->
+	
+	<bean id="userRealm" class="com.carmanager.realm.UserAuthorizingRealm">
+		<property name="credentialsMatcher" ref="credentialsMatcher" />
+		<property name="cachingEnabled" value="false" />
+	</bean>
+
+	<!-- 会话ID 生成器 -->
+	<bean id="sessionIdGenerator"
+		class="org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator" />
+
+	<!-- 会话Cookie 模板 ： sessionIdCookie是用于生产Session ID Cookie 的模板； -->
+	<bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+		<constructor-arg value="sid" />
+		<property name="httpOnly" value="true" />
+		<property name="secure" value="true" />
+		<property name="maxAge" value="${sessionIdCookie.maxAge}" /> <!-- value=-1 -->
+	</bean>
+
+	<!-- rememberMe功能的cookie -->
+	<bean id="rememberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+		<constructor-arg value="rememberMe" />
+		<property name="httpOnly" value="true" />
+		<property name="secure" value="true" />
+		<property name="maxAge" value="${rememberMeCookie.maxAge}" /><!--7天 -->
+	</bean>
+
+	<!-- rememberMe管理器 -->
+	<bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+		<!-- rememberMe cookie加密的密钥 建议每个项目都不一样 默认AES算法 密钥长度（128 256 512 位） -->
+		<property name="cipherKey"
+			value="#{T(org.apache.shiro.codec.Base64).decode('4AvVhmFLUs0KTA3Kprsdag==')}" />
+		<property name="cookie" ref="rememberMeCookie" />
+	</bean>
+
+	<!-- 会话DAO -->
+	<bean id="sessionDAO"
+		class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO">
+		<property name="activeSessionsCacheName" value="shiro-activeSessionCache" />
+		<property name="sessionIdGenerator" ref="sessionIdGenerator" />
+	</bean>
+
+	<!-- 会话验证调度器 -->
+	<bean id="sessionValidationScheduler"
+		class="org.apache.shiro.session.mgt.quartz.QuartzSessionValidationScheduler">
+		<property name="sessionValidationInterval" value="1800000" />
+		<property name="sessionManager" ref="sessionManager" />
+	</bean>
+
+	<!-- 会话管理器 ：会话管理器使用用于web 环境的DefaultWebSessionManager； -->
+	<bean id="sessionManager"
+		class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+		<property name="globalSessionTimeout" value="1800000" />
+		<property name="deleteInvalidSessions" value="true" />
+		<property name="sessionValidationSchedulerEnabled" value="true" />
+		<property name="sessionValidationScheduler" ref="sessionValidationScheduler" />
+		<property name="sessionDAO" ref="sessionDAO" />
+		<property name="sessionIdCookieEnabled" value="true" />
+		<property name="sessionIdCookie" ref="sessionIdCookie" />
+	</bean>
+
+	<!-- 安全管理器 ： 安全管理器使用用于web 环境的DefaultWebSecurityManager。 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="userRealm" />
+		<property name="cacheManager" ref="shiroCacheManager" />
+		<property name="sessionManager" ref="sessionManager" />
+		<property name="rememberMeManager" ref="rememberMeManager" />
+	</bean>
+
+	<!-- 相当于调用SecurityUtils.setSecurityManager(securityManager) -->
+	<bean
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="staticMethod"
+			value="org.apache.shiro.SecurityUtils.setSecurityManager" />
+		<property name="arguments" ref="securityManager" />
+	</bean>
+
+	<!-- Shiro生命周期处理器 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+	<!-- 基于Form表单的身份验证过滤器 -->
+	<bean id="formAuthenticationFilter" class="com.carmanager.shiro.filter.MyFormAuthenticationFilter" scope="prototype">
+		<property name="usernameParam" value="username" />
+		<property name="passwordParam" value="password" />
+		<property name="rememberMeParam" value="rememberMe" />
+		<property name="loginUrl" value="/user/login" />
+		<property name="failureKeyAttribute" value="shiroLoginFailure" />
+	</bean>
+	
+	<bean id="adminFormAuthenticationFilter" class="com.carmanager.shiro.filter.MyFormAuthenticationFilter" scope="prototype">
+		<property name="usernameParam" value="username" />
+		<property name="passwordParam" value="password" />
+		<property name="loginUrl" value="/admin/login" />
+		<property name="failureKeyAttribute" value="shiroLoginFailure" />
+	</bean>
+	
+
+	<!-- jCaptchaValidateFilter 验证码拦截器 -->
+	<bean id="jCaptchaValidateFilter" class="com.carmanager.shiro.filter.JCaptchaValidateFilter">
+		<property name="jcaptchaEbabled" value="true" />
+		<property name="jcaptchaParam" value="jcaptchaCode" />
+		<property name="failureKeyAttribute" value="shiroLoginFailure" />
+	</bean>
+
+	<!-- 控制并发登录人数的拦截器 -->
+	<bean id="kickoutSessionControlFilter" class="com.carmanager.shiro.filter.KickoutSessionControlFilter">
+		<property name="cacheManager" ref="shiroCacheManager" />
+		<property name="sessionManager" ref="sessionManager" />
+		<property name="kickoutAfter" value="false" />
+		<property name="maxSession" value="1" />
+		<property name="kickoutUrl" value="/user/login?kickout=1" />
+	</bean>
+
+	<!-- 自定义拦截器 -->
+	<bean id="sysUserFilter" class="com.carmanager.shiro.filter.SysUserFilter" />
+
+	<!-- 配置SSL拦截器 -->
+	<bean id="sslFilter" class="org.apache.shiro.web.filter.authz.SslFilter">
+		<property name="port" value="8443" />
+	</bean>
+
+	<!-- Shiro拦截器 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- shiro的核心安全接口 -->
+		<property name="securityManager" ref="securityManager" />
+		<!-- 要求登录时的链接地址 -->
+		<property name="loginUrl" value="/user/login" />
+		<property name="filters">
+			<util:map>
+				<entry key="authc" value-ref="formAuthenticationFilter" />
+				<entry key="adminAuthc" value-ref="adminFormAuthenticationFilter" />
+				<entry key="sysUser" value-ref="sysUserFilter" />
+				<entry key="jCaptchaValidate" value-ref="jCaptchaValidateFilter" />
+				<entry key="kickout" value-ref="kickoutSessionControlFilter" />
+				<entry key="ssl" value-ref="sslFilter" />
+			</util:map>
+		</property>
+		<!-- 登陆成功后要跳转的地址 -->
+		<property name="successUrl" value="/" />
+		<!-- 未认证时要跳转的地址 -->
+		<property name="unauthorizedUrl" value="unauthorized.jsp" />
+		<!-- shiro连接约束限制 -->
+		<property name="filterChainDefinitions">
+			<value>
+				<!-- anon 表示匿名访问（不需要认证与授权） authc 表示需要认证 perms[SECURITY_ACCOUNT_VIEW] 
+					表示用户需要提供值为“SECURITY_ACCOUNT_VIEW”Permission 信息 由此可见，连接地址配置为 authc 或 perms[XXX] 
+					表示为受保护资源。 -->
+				/s/**=anon <!-- bootstrap jquery资源等 -->
+				/ueditor/**=anon
+				/jcaptcha* = anon <!-- 验证码 -->
+				/unauthorized.jsp=anon
+				/user/reg=jCaptchaValidate,anon,ssl
+				/user/agreement=anon <!-- 注册协议 -->
+				/user/active_*=anon <!-- 激活页面 -->
+				/user/site/active/u/*/e/*=anon <!-- 用户激活链接 -->
+				/user/login=jCaptchaValidate,authc,ssl
+
+				/admin/login=jCaptchaValidate,adminAuthc,ssl
+				/admin/**=kickout,adminAuthc,sysUser
+				
+				/logout=logout
+
+				/** = kickout,user,sysUser
+			</value>
+		</property>
+	</bean>
+
+</beans>
