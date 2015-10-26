@@ -1,8 +1,8 @@
 ﻿# CarManager 汽车4S店管理系统
 
-###开发环境：JDK1.7 + Eclipse + Tomcat7.0 + MySQL5
+####开发环境：JDK1.7 + Eclipse + Tomcat7.0 + MySQL5
 
-###使用技术：SpringMVC + Spring4 + Hibernate4 + Shiro + Bootstrap
+####使用技术：SpringMVC + Spring4 + Hibernate4 + Shiro + Bootstrap
 
 1. 先将WebContent/doc/目录下的carmanager.sql数据导入到数据库中  
 数据库的用户名密码在config目录下的config.properties中修  改，在jdbc.username,jdbc.password后面修改数据库的用户名和密码。  
